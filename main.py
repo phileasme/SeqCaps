@@ -15,7 +15,7 @@ Num_capsule = 10
 Dim_capsule = 16
 dropout = 0.25
 maxlen = 784
-repeats = 1
+repeats = 3
 def get_model():
     input1 = Input(shape=(1,maxlen,))
 
