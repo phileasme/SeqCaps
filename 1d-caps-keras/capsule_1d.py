@@ -23,6 +23,21 @@ def dynamic_routing(routings, activation, u_hat):
             b = K.batch_dot(vj, u_hat, [2, 3])
     return activation(vj)
 
+def opt_dynamic_routing(routings, activation, u_hat):
+    u_hat = K.permute_dimensions(u_hat, (0, 2, 1, 3))
+    b = K.zeros_like(u_hat[:,:,:,0])
+    assert routings > 0, 'The routings should be > 0.'
+    for i in range(routings):
+        Wv = softmax(b, 1)
+        # outputs.shape=[None, num_capsule, dim_capsule]
+        vj = K.batch_dot(Wv, u_hat, [2, 2])
+        if i < routings - 1:
+            vj = K.l2_normalize(vj)
+            # vj = activation(vj)
+            # b.shape=[batch_size, num_capsule, input_num_capsule]
+            b = K.batch_dot(vj, u_hat, [2, 3])
+    return activation(vj)
+
 class Capsule(Layer):
     def __init__(self, num_capsule, dim_capsule, routings=3, **kwargs):
         super(Capsule, self).__init__(**kwargs)
