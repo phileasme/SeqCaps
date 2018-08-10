@@ -10,34 +10,35 @@ from keras.models import Model
 from keras.utils import np_utils
 from capsule_1d import *
 import numpy as np
+
 Routings = 3
 Num_capsule = 10
 Dim_capsule = 16
 dropout = 0.25
 maxlen = 784
 repeats = 3
+
 def get_model():
     input1 = Input(shape=(1,maxlen,))
 
     # x = Bidirectional(Dilated_TCN(1, 10, 16, 2, 1, 784, 'norm_relu', use_skip_connections=False, return_param_str=True))(input1)
-    x = Bidirectional(LSTM(256,
-              activation='relu',
-              dropout=dropout,
-              recurrent_dropout=.28,
-              return_sequences=True))(input1)
+    # x = Bidirectional(LSTM(256,
+    #           activation='relu',
+    #           dropout=dropout,
+    #           recurrent_dropout=.28,
+    #           return_sequences=True))(input1)
                   # (input1  if i == 0 else capsule)
+    x = input1
     for i in range(repeats):
-        # x = GRU(256, dropout=dropout,
-        #                           activation='relu',
-        #                           recurrent_dropout=0.28,
-        #                           return_sequences=True)(input1 if i == 0 else capsule)
+        x = GRU(256, dropout=dropout,
+                                  activation='relu',
+                                  recurrent_dropout=0.28,
+                                  return_sequences=True)(input1 if i == 0 else capsule)
         capsule = Capsule(
             num_capsule=Num_capsule,
             dim_capsule=Dim_capsule,
-            routings=Routings)(x if i == 0 else capsule)
+            routings=Routings)( x if i == 0 else capsule)
 
-
-    # capsule = x
     capsule = Flatten()(capsule)
     capsule = Dropout(dropout)(capsule)
     capsule = LeakyReLU()(capsule)
